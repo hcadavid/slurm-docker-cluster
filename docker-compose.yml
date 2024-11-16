@@ -84,6 +84,42 @@ services:
     networks:
       - slurm-network
 
+  slurmrestd:
+    image: slurm-docker-cluster:${IMAGE_TAG}
+    build:
+      context: .
+      args:
+        SLURM_TAG: ${SLURM_TAG}
+    security_opt:
+      - seccomp:unconfined
+      - apparmor:unconfined
+    command: ["slurmrestd"]
+    container_name: slurmrestd
+    hostname: slurmrestd
+    volumes:
+      - etc_munge:/etc/munge
+      - etc_slurm:/etc/slurm
+      - var_log_slurm:/var/log/slurm
+    expose:
+      - "9200"
+    depends_on:
+      - slurmctld
+      - jwt-key-generator
+    networks:
+      - slurm-network
+
+  jwt-key-generator:
+    image: alpine:latest
+    command: sh -c "/scripts/generate_jwt_key.sh"
+    volumes:
+      - ./scripts:/scripts
+      - etc_slurm:/etc/slurm
+    depends_on:
+      - mysql
+    networks:
+      - slurm-network
+
+
 volumes:
   etc_munge:
   etc_slurm:
