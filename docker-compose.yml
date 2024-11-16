@@ -107,12 +107,12 @@ services:
       - jwt-key-generator
     networks:
       - slurm-network
+    user: slurmrestd
 
   jwt-key-generator:
     image: alpine:latest
-    command: sh -c "/scripts/generate_jwt_key.sh"
+    command: sh -c "/usr/local/bin/generate_jwt_key.sh"
     volumes:
-      - ./scripts:/scripts
       - etc_slurm:/etc/slurm
     depends_on:
       - mysql
